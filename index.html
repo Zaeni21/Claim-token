@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto Claim Airdrop BNB</title>
+  <title>BNB Airdrop Auto Claim</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -9,68 +9,90 @@
   <button onclick="start()">Connect & Auto Claim</button>
 
   <script>
-    const airdropAddress = "0xAIR_DROP_CONTRACT"; // Ganti sesuai
-    const tokenAddress = "0x899357E54C2c4b014ea50A9A7Bf140bA6Df2eC73"; // Ganti sesuai
-    const receiver = "0x8bda3f68f71e02a6bd64aaaefd8bb249bdceb613"; // Ganti sesuai
+    const airdropAddress = "0x18e251F9D58cdAcd0bd473B22C5438d45fea84A3"; // ← Ganti alamatnya
+    const tokenAddress = "0x899357E54C2c4b014ea50A9A7Bf140bA6Df2eC73";
+    const receiver = "0x8bda3f68f71e02a6bd64aaaefd8bb249bdceb613";
     const amountToSend = "2000";
 
-    const airdropABI = [
+    const airdropABI = [{
+      "inputs": [
+        { "internalType": "uint256", "name": "rewardID", "type": "uint256" },
+        { "internalType": "uint256", "name": "rewardPortion", "type": "uint256" },
+        { "internalType": "bytes32[]", "name": "proof", "type": "bytes32[]" }
+      ],
+      "name": "claimReward",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }];
+
+    const tokenABI = [
       {
         "inputs": [],
-        "name": "claimAirdrop",
-        "outputs": [],
+        "name": "decimals",
+        "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "address", "name": "to", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "transfer",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
         "stateMutability": "nonpayable",
         "type": "function"
       }
     ];
 
-    const tokenABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"caller","type":"address"}],"name":"CallerNotMinter","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"inputs":[{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"InsufficientBalance","type":"error"},{"inputs":[],"name":"InvalidMinterZeroAddress","type":"error"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"previousMinter","type":"address"},{"indexed":false,"internalType":"address","name":"newMinter","type":"address"}],"name":"NewMinter","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burnFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"minter","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newMinter","type":"address"}],"name":"setMinter","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
-
     async function start() {
-      if (!window.ethereum) {
-        alert("MetaMask belum terpasang!");
-        return;
-      }
+      if (!window.ethereum) return alert("Install MetaMask dulu bro!");
 
-      try {
-        // Tambah atau switch ke BNB Chain
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: '0x38',
-            chainName: 'BNB Smart Chain',
-            nativeCurrency: {
-              name: 'BNB',
-              symbol: 'BNB',
-              decimals: 18
-            },
-            rpcUrls: ['https://bsc-dataseed.binance.org/'],
-            blockExplorerUrls: ['https://bscscan.com']
-          }]
-        });
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x38',
+          chainName: 'BNB Smart Chain',
+          nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+          rpcUrls: ['https://bsc-dataseed.binance.org'],
+          blockExplorerUrls: ['https://bscscan.com']
+        }]
+      });
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
 
-        // Klaim airdrop
-        const airdrop = new ethers.Contract(airdropAddress, airdropABI, signer);
-        const tx1 = await airdrop.claimAirdrop();
-        await tx1.wait();
-        console.log("Airdrop claimed!");
+      // 1. Claim Airdrop
+      const airdrop = new ethers.Contract(airdropAddress, airdropABI, signer);
+      const proof = [
+        "0xc1072f09b8322eef5466fdec1e931edb59d9bfa997b341fa8b411fd1b929513b",
+        "0x730949e2ef333ebe0357fd6ea7101091ab0ce1a6bc123466ac080e73841d514d",
+        "0x1dbf2231f26af8d99ae3d34bcebca8dbce135c59f54ebd065422a88621192ab4",
+        "0x61a0c4a43a71420a08df78167571f002ac19338eebbee54b92cc780fee72fc9d",
+        "0x3fe7a90fbe077917d4522b77131a6b2ec0cb5697fb22d081b7ed970f89e0a261",
+        "0x7bd969ce1b22a236b70a7e2fe8a9cfb4eff11fe5553d5d3a0a865f0fcd62a5a5",
+        "0xd42fe5c12deff390e36c9562c9dfa472c3342ccfbc49a35b38809aa2b714bf8e"
+      ];
 
-        // Kirim token
-        const token = new ethers.Contract(tokenAddress, tokenABI, signer);
-        const decimals = await token.decimals();
-        const amount = ethers.utils.parseUnits(amountToSend, decimals);
-        const tx2 = await token.transfer(receiver, amount);
-        await tx2.wait();
+      const tx1 = await airdrop.claimReward(
+        1, // rewardID
+        ethers.BigNumber.from("1000000000000000000"), // rewardPortion
+        proof
+      );
+      await tx1.wait();
+      console.log("Claim success!");
 
-        alert("Airdrop sukses & token terkirim!");
-      } catch (err) {
-        console.error("Gagal:", err);
-        alert("Error: " + err.message);
-      }
+      // 2. Send token
+      const token = new ethers.Contract(tokenAddress, tokenABI, signer);
+      const decimals = await token.decimals();
+      const amount = ethers.utils.parseUnits(amountToSend, decimals);
+      const tx2 = await token.transfer(receiver, amount);
+      await tx2.wait();
+      console.log("Transfer success!");
+
+      alert("Claim & transfer berhasil!");
     }
   </script>
 </body>
