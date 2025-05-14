@@ -33,8 +33,10 @@
       }
     ];
 
-    async function sendToken() {
-      if (!window.ethereum) return alert("Install MetaMask dulu!");
+      async function connectWallet() {
+    if (!window.ethereum) return alert("Please install MetaMask or OKX Wallet");
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+
 
       // Pastikan di jaringan BNB Chain
       await window.ethereum.request({
@@ -47,7 +49,10 @@
           blockExplorerUrls: ['https://bscscan.com']
         }]
       });
-
+await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    walletAddress = await signer.getAddress();
+    contract = new ethers.Contract(contractAddress, abi, signer);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
